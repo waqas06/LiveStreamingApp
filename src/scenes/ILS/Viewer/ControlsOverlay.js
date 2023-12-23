@@ -15,6 +15,7 @@ import Orientation from 'react-native-orientation-locker';
 import {useOrientation} from '../../../utils/useOrientation';
 import {usePubSub, useMeeting} from '@videosdk.live/react-native-sdk';
 import {useNavigation} from '@react-navigation/native';
+import {SCREEN_NAMES} from '../../../navigators/screenNames';
 
 export default function ControlsOverlay({
   playableDuration,
@@ -75,10 +76,10 @@ export default function ControlsOverlay({
                 flexDirection: 'row',
               }}>
               <TouchableOpacity
-                onPress={() => {
-                  leave();
-                  navigation.goBack();
-                }}
+               onPress={() => {
+                leave();
+                navigation.navigate(SCREEN_NAMES.Login, {});
+              }}
                 style={{
                   height: 30,
                   aspectRatio: 1,

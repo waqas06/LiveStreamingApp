@@ -1,7 +1,10 @@
 import React from 'react';
 import colors from './src/styles/colors';
 import Home from './src/scenes/home';
+import Login from './src/scenes/admin/login';
 import Viewer_Home from './src/scenes/home/viewer';
+import Admin_Home from './src/scenes/admin/admin-home';
+import Product from './src/scenes/admin/products';
 import Speaker_Home from './src/scenes/home/speaker';
 import Meeting from './src/scenes/ILS';
 import {NavigationContainer} from '@react-navigation/native';
@@ -18,10 +21,25 @@ export default function App({}) {
           animationEnabled: false,
           presentation: 'modal',
         }}
-        initialRouteName={SCREEN_NAMES.Home}>
+        initialRouteName={SCREEN_NAMES.Login}>
+          <RootStack.Screen
+          name={SCREEN_NAMES.Login}
+          component={Login}
+          options={{headerShown: false}}
+        />
         <RootStack.Screen
           name={SCREEN_NAMES.Home}
           component={Home}
+          options={{headerShown: false}}
+        />
+        <RootStack.Screen
+          name={SCREEN_NAMES.Admin_Home}
+          component={Admin_Home}
+          options={{headerShown: false}}
+        />
+        <RootStack.Screen
+          name={SCREEN_NAMES.Product}
+          component={Product}
           options={{headerShown: false}}
         />
         <RootStack.Screen

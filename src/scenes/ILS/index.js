@@ -39,7 +39,7 @@ export default function Meeting({navigation, route}) {
         <MeetingConsumer
           {...{
             onMeetingLeft: () => {
-              navigation.navigate(SCREEN_NAMES.Home);
+              navigation.navigate(SCREEN_NAMES.Admin_Home);
             },
           }}>
           {() => {

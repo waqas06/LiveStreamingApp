@@ -6,6 +6,11 @@ import {
   TouchableOpacity,
   Platform,
   Dimensions,
+  FlatList,
+  Modal,
+  Pressable,
+  ImageBackground,
+  StyleSheet
 } from 'react-native';
 import {useMeeting, usePubSub} from '@videosdk.live/react-native-sdk';
 import {
@@ -32,12 +37,13 @@ import ParticipantView from './ParticipantView';
 import RemoteParticipantPresenter from './RemoteParticipantPresenter';
 import VideosdkRPK from '../../../../VideosdkRPK';
 import Toast from 'react-native-simple-toast';
-
+import {fetchProducts,fetchProductDetails} from '../../../api/api';
 const MemoizedParticipant = React.memo(
   ParticipantView,
   ({participantId}, {participantId: oldParticipantId}) =>
     participantId === oldParticipantId,
 );
+
 import {MemoizedParticipantGrid} from './ParticipantGrid';
 import {useOrientation} from '../../../utils/useOrientation';
 import ChatViewer from '../Components/ChatViewer';
@@ -79,6 +85,34 @@ export default function MeetingViewer({setlocalParticipantMode}) {
   const orientation = useOrientation();
 
   const [bottomSheetView, setBottomSheetView] = useState('');
+  const [list, setList] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [productTitle, setproductTitle] = useState('');
+  const [productDescription, setproductDescription] = useState('');
+  const [productPrice, setproductPrice] = useState('');
+  const [productStock, setproductStock] = useState('');
+  const [productImage, setproductImage] = useState('');
+  const [selectedId, setSelectedId] = useState(null);
+
+  useEffect(() => {
+    console.log("USE EFFECT CALLED ---- ");
+    async function fetchData() {
+      try{
+       // setPageNumber(0);
+        let result = await fetchProducts();
+        console.log("==================");
+        console.log(result);
+        console.log("==================");
+        setList(result.products);
+       
+      } catch (error) {
+        console.log("***** Error in Fetch call = "+error.message);
+      }
+    }
+    fetchData();
+  }, []);
+
+  
 
   const participantIds = useMemo(() => {
     const pinnedParticipantId = [...pinnedParticipants.keys()].filter(
@@ -148,7 +182,9 @@ export default function MeetingViewer({setlocalParticipantMode}) {
   }, []);
 
   const _handleHLS = () => {
+    
     if (!hlsState || hlsState === 'HLS_STOPPED') {
+      
       startHls({
         layout: {
           type: 'SPOTLIGHT',
@@ -160,6 +196,55 @@ export default function MeetingViewer({setlocalParticipantMode}) {
     } else if (hlsState === 'HLS_PLAYABLE') {
       stopHls();
     }
+  };
+
+  const ItemView = ({ item }) => {
+    let image = {uri:'https://cdn.shopify.com/s/files/1/0711/5322/1898/files/1.jpg?v=1700576012'};
+    if(item.image != null){
+       image = {uri: item.image.src};
+    }
+    
+    return (
+      
+      // Single Comes here which will be repeatative for the FlatListItems
+      <TouchableOpacity onPress={() => getItem(item)} style={{
+        backgroundColor: '#ffff',
+        padding: 2,
+        marginVertical: 8,
+        marginHorizontal: 17,
+        height: 120,
+        
+      }}>
+        <ImageBackground source={image} style={styles.imageWishlist} imageStyle={{ borderRadius: 1 }}>
+     
+    </ImageBackground>
+        <Text style={ {fontSize: 15,fontWeight: 'bold',}}>
+          {item.title}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+  const getItem = (item) => {
+    //Function for click on an item
+    console.log(item.id);
+    async function fetchProductData() {
+      let result = await fetchProductDetails(item.id);
+      console.log("==================");
+      console.log(result);
+     
+      console.log(result.product);
+      console.log("==================");
+      setproductTitle(result.product.title);
+      setproductDescription(result.product.body_html);
+      setproductPrice(result.product.variants[0].price);
+      setproductStock(result.product.variants[0].inventory_quantity);
+      setModalVisible(true);
+    }
+    fetchProductData();
+      
+    
+    
+   //alert('Id : ' + item.id + ' Value : ' + item.title);
   };
 
   usePubSub(`CHANGE_MODE_${localParticipant.id}`, {
@@ -190,11 +275,34 @@ export default function MeetingViewer({setlocalParticipantMode}) {
           alignItems: 'center',
           width: '100%',
         }}>
+            <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal closed.');
+            setModalVisible(false);
+          }}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalText}>Title : {productTitle}</Text>
+              <Text style={styles.modalText}>Description : {productDescription} </Text>
+              <Text style={styles.modalText}>Price : {productPrice}</Text>
+              <Text style={styles.modalText}>Stock : {productStock}</Text>
+              <Pressable
+                style={[styles.button, styles.buttonClose]}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.textStyle}>Add to Cart</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
         <View
           style={{
             flex: 1,
             justifyContent: 'space-between',
           }}>
+            
           <View style={{flexDirection: 'row'}}>
             <Text
               style={{
@@ -218,11 +326,12 @@ export default function MeetingViewer({setlocalParticipantMode}) {
           </View>
         </View>
         <View style={{flexDirection: 'row'}}>
+          
           {hlsState === 'HLS_STARTED' ||
           hlsState === 'HLS_STOPPING' ||
           hlsState === 'HLS_PLAYABLE' ||
           hlsState === 'HLS_STARTING' ? (
-            <Blink ref={hlsRef} duration={500}>
+             <Blink ref={hlsRef} duration={500}>
               <TouchableOpacity
                 onPress={() => {
                   _handleHLS();
@@ -307,6 +416,7 @@ export default function MeetingViewer({setlocalParticipantMode}) {
           </TouchableOpacity>
         </View>
       </View>
+      
       {/* Center */}
       <View
         style={{
@@ -319,12 +429,34 @@ export default function MeetingViewer({setlocalParticipantMode}) {
         ) : presenterId && localScreenShareOn ? (
           <LocalParticipantPresenter />
         ) : null}
-
         <MemoizedParticipantGrid
           participantIds={participantIds}
           isPresenting={presenterId != null}
         />
+        
+        
+          
+       
       </View>
+      <View  style={{
+          flex: 0.3,
+        }
+        }>
+        <FlatList
+       
+        data={list}
+        renderItem={ItemView}
+        keyExtractor={item => item.id}
+        extraData={selectedId}
+        horizontal={true}
+      />
+        </View>
+        <View  style={{
+          flex: 0.3,
+        }
+        }>
+          <ChatViewer raiseHandVisible={false} />
+        </View>
       <Menu
         ref={leaveMenu}
         menuBackgroundColor={colors.primary[700]}
@@ -429,9 +561,11 @@ export default function MeetingViewer({setlocalParticipantMode}) {
             return <ScreenShare height={22} width={22} fill="#FFF" />;
           }}
         />
+        
       </View>
+      
       <BottomSheet
-        sheetBackgroundColor={'#2B3034'}
+        sheetBackgroundColor={'#transparent'}
         draggable={false}
         radius={12}
         hasDraggableIcon
@@ -439,13 +573,63 @@ export default function MeetingViewer({setlocalParticipantMode}) {
           setBottomSheetView('');
         }}
         ref={bottomSheetRef}
-        height={Dimensions.get('window').height * 0.5}>
+        height={Dimensions.get('window').height * 0.3}>
         {bottomSheetView === 'CHAT' ? (
           <ChatViewer raiseHandVisible={false} />
         ) : bottomSheetView === 'PARTICIPANT_LIST' ? (
           <ParticipantListViewer participantIds={[...participants.keys()]} />
         ) : null}
+        
       </BottomSheet>
+      
     </>
   );
 }
+const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  imageWishlist: {
+    height:80,
+    width:110,
+    borderRadius: 1,
+  }
+});

@@ -14,8 +14,10 @@ export default function ILSContainer({webcamEnabled}) {
   const [localParticipantMode, setlocalParticipantMode] = useState(null);
 
   const mMeeting = useMeeting({});
+  
 
   const mMeetingRef = useRef();
+
 
   useEffect(() => {
     mMeetingRef.current = mMeeting;
@@ -73,6 +75,7 @@ export default function ILSContainer({webcamEnabled}) {
   return isJoined ? (
     localParticipantMode === 'CONFERENCE' ? (
       <MeetingViewer setlocalParticipantMode={setlocalParticipantMode} />
+      
     ) : (
       <ViewerContainer
         localParticipantId={localParticipant.id}

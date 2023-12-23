@@ -17,7 +17,7 @@ export default function WaitingToJoinView() {
           fontSize: convertRFValue(18),
           color: colors.primary[100],
         }}>
-        Creating a room
+        Creating Live Session
       </Text>
     </View>
   );

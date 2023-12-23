@@ -4,6 +4,7 @@ import BottomSheet from '../../../components/BottomSheet';
 import {useOrientation} from '../../../utils/useOrientation';
 import ParticipantView from './ParticipantView';
 import PauseInvisibleParticipants from './PauseInvisibleParticipant';
+import ChatViewer from '../Components/ChatViewer';
 
 const MemoizedParticipant = React.memo(
   ParticipantView,
@@ -46,6 +47,7 @@ function ParticipantGrid({participantIds, isPresenting}) {
               flex: 1,
               flexDirection: orientation == 'PORTRAIT' ? 'row' : 'column',
             }}>
+              
             {participantIds
               .slice(i * perRow, (i + 1) * perRow)
               .map(participantId => {
@@ -58,7 +60,9 @@ function ParticipantGrid({participantIds, isPresenting}) {
                   />
                 );
               })}
+              
           </View>
+          
         );
       })}
     </>

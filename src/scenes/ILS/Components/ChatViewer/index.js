@@ -43,33 +43,21 @@ const ChatViewer = ({raiseHandVisible}) => {
     }, 100);
   };
   const scrollToBottom = () => {
-    // flatListRef.current.scrollToEnd({animated: true});
+     //flatListRef.current.scrollToEnd({animated: true});
   };
 
   return (
     <View
       style={{
-        flex: 1,
+       flex:1,
+        
       }}>
       <SafeAreaView
         style={{
-          flex: 1,
-          justifyContent: 'flex-end',
+          flex:1,
+         
         }}>
-        <View
-          style={{
-            marginLeft: 12,
-            marginVertical: 12,
-          }}>
-          <Text
-            style={{
-              fontSize: 18,
-              color: colors.primary[100],
-              fontWeight: 'bold',
-            }}>
-            Chat
-          </Text>
-        </View>
+        
         {mpubsub.messages ? (
           <FlatList
             ref={flatListRef}
@@ -84,6 +72,7 @@ const ChatViewer = ({raiseHandVisible}) => {
                   key={i}
                   style={{
                     backgroundColor: colors.primary[600],
+                  // backgroundColor:'#transparent',
                     paddingVertical: 8,
                     paddingHorizontal: 10,
                     marginVertical: 6,
@@ -134,6 +123,7 @@ const ChatViewer = ({raiseHandVisible}) => {
           style={{
             paddingHorizontal: 12,
             flexDirection: 'row',
+            opacity:1,
           }}>
           <View
             style={{
