@@ -12,7 +12,7 @@
   "dependencies": {
     "@react-native-community/slider": "^4.4.2",
     "@react-navigation/native": "^6.0.13",
-    "@react-navigation/stack": "^6.3.2",
+    "@react-navigation/stack": "^6.3.27",
     "@videosdk.live/react-native-incallmanager": "^0.0.9",
     "@videosdk.live/react-native-sdk": "^0.0.46",
     "add": "^2.0.6",
